@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SimplyDoors Margin Calculator</title>
+    <style>
+        :root {
+            --primary: #0f766e; /* A professional teal/slate theme */
+            --primary-hover: #0d9488;
+            --bg: #f1f5f9;
+            --panel-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --danger: #ef4444;
+            --success: #059669;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 950px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix, .suffix {
+            position: absolute;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 0 0.75rem;
+            pointer-events: none;
+        }
+
+        .prefix { left: 0; }
+        .suffix { right: 0; }
+
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fff;
+        }
+
+        input[type="number"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+        }
+
+        .input-wrapper.has-prefix input { padding-left: 1.75rem; }
+        .input-wrapper.has-suffix input { padding-right: 2rem; }
+
+        /* Toggle Switch Styling */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* Custom Expenses */
+        #customExpensesContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .custom-expense-row {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr auto auto;
+            gap: 0.75rem;
+            align-items: center;
+            background: #f8fafc;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .custom-expense-row input {
+            padding: 0.6rem;
+            font-size: 0.95rem;
+        }
+
+        .mini-toggle-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            gap: 4px;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover { background: var(--primary-hover); }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--danger);
+            padding: 0.5rem;
+            font-size: 1.25rem;
+            line-height: 1;
+            border-radius: 6px;
+        }
+        
+        .btn-danger:hover { background: #fee2e2; }
+
+        .btn-copy {
+            width: 100%;
+            margin-top: 1.5rem;
+            padding: 0.875rem;
+            background: #334155;
+            font-size: 1rem;
+        }
+
+        .btn-copy:hover { background: #1e293b; }
+
+        .btn-clear {
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            padding: 0;
+        }
+        
+        .btn-clear:hover {
+            background: transparent;
+            color: var(--danger);
+            text-decoration: underline;
+        }
+
+        /* Summary Panel */
+        .summary {
+            background: var(--text-main);
+            color: white;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .summary h2 {
+            color: white;
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            color: #cbd5e1;
+        }
+
+        .summary-row.total {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .summary-row.profit {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .tax-disabled {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        /* Header utilities */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .app-header h1 {
+            font-size: 1.5rem;
+            color: var(--text-main);
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            body { padding: 1rem 0.5rem; }
+            .container { grid-template-columns: 1fr; gap: 1rem; }
+            
+            .summary {
+                position: static; /* Summary stays at the bottom on mobile */
+                margin-bottom: 2rem;
+            }
+
+            .custom-expense-row {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .custom-expense-row input.expense-name {
+                grid-column: span 2;
+            }
+
+            .mini-toggle-wrap { justify-self: center; }
+            .btn-danger { justify-self: end; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="panel">
+        <div class="app-header">
+            <h1>Margin Calculator</h1>
+            <button class="btn btn-clear" onclick="clearAll()">Reset All</button>
+        </div>
+        
+        <div class="form-group">
+            <label>Base Item Cost</label>
+            <div class="input-wrapper has-prefix">
+                <span class="prefix">$</span>
+                <input type="number" id="baseCost" step="0.01" min="0" placeholder="0.00" inputmode="decimal" oninput="calculate()">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Target Margin (Gross)</label>
+            <div class="input-wrapper has-suffix">
+                <input type="number" id="margin" step="0.1" min="0" max="99.99" placeholder="0" inputmode="decimal" oninput="calculate()">
+                <span class="suffix">%</span>
+            </div>
+        </div>
+
+        <div class="toggle-container">
+            <div>
+                <label style="margin:0;">Master Tax Settings</label>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Toggle to exempt entire quote</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="masterTaxToggle" checked onchange="calculate()">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="form-group" id="taxRateGroup">
+            <label>Sales Tax Rate</label>
+            <div class="input-wrapper has-suffix">
+                <input type="number" id="taxRate" step="0.01" min="0" value="8.25" inputmode="decimal" oninput="calculate()">
+                <span class="suffix">%</span>
+            </div>
+        </div>
+
+        <h2 style="margin-top: 2.5rem;">
+            Additional Line Items
+            <button class="btn" onclick="addCustomExpense()">+ Add Custom</button>
+        </h2>
+        
+        <div id="customExpensesContainer">
+            </div>
+    </div>
+
+    <div class="panel summary">
+        <h2>Quote Summary</h2>
+        
+        <div class="summary-row">
+            <span>Total Cost</span>
+            <span id="displayTotalCost">$0.00</span>
+        </div>
+        
+        <div class="summary-row profit">
+            <span>Gross Profit</span>
+            <span id="displayGrossProfit">$0.00</span>
+        </div>
+
+        <div class="summary-row" id="taxRow">
+            <span>Sales Tax</span>
+            <span id="displayTax">$0.00</span>
+        </div>
+
+        <div class="summary-row total">
+            <span>Selling Price</span>
+            <span id="displaySellingPrice">$0.00</span>
+        </div>
+
+        <button class="btn btn-copy" id="copyBtn" onclick="copyToClipboard()">
+            📋 Copy Breakdown
+        </button>
+    </div>
+</div>
+
+<script>
+    let customExpenses = [];
+
+    // Initialize app
+    window.onload = () => {
+        loadState();
+        if (customExpenses.length === 0) {
+            // Optional: Start with an empty list instead of a blank row to keep UI clean
+            renderCustomExpenses();
+        }
+        calculate();
+    };
+
+    function addCustomExpense(name = '', amount = '', isTaxable = true) {
+        const id = 'exp_' + Date.now() + Math.random().toString(36).substr(2, 9);
+        customExpenses.push({ id, name, amount, isTaxable });
+        renderCustomExpenses();
+        calculate();
+    }
+
+    function removeExpense(id) {
+        customExpenses = customExpenses.filter(exp => exp.id !== id);
+        renderCustomExpenses();
+        calculate();
+    }
+
+    function updateExpense(id, field, value) {
+        const expense = customExpenses.find(exp => exp.id === id);
+        if (expense) {
+            expense[field] = value;
+            calculate();
+        }
+    }
+
+    function renderCustomExpenses() {
+        const container = document.getElementById('customExpensesContainer');
+        container.innerHTML = '';
+
+        customExpenses.forEach(exp => {
+            const row = document.createElement('div');
+            row.className = 'custom-expense-row';
+            row.innerHTML = `
+                <input type="text" placeholder="Description (e.g. Labor)" class="expense-name" value="${exp.name}" 
+                       oninput="updateExpense('${exp.id}', 'name', this.value)">
+                <div class="input-wrapper has-prefix">
+                    <span class="prefix" style="padding: 0 0.5rem; font-size:0.9rem;">$</span>
+                    <input type="number" placeholder="0.00" class="expense-amount" step="0.01" min="0" inputmode="decimal" value="${exp.amount}" 
+                           oninput="updateExpense('${exp.id}', 'amount', this.value)">
+                </div>
+                <div class="mini-toggle-wrap">
+                    <span>Taxable?</span>
+                    <label class="switch" style="width: 34px; height: 18px;">
+                        <input type="checkbox" class="expense-taxable" ${exp.isTaxable ? 'checked' : ''} 
+                               onchange="updateExpense('${exp.id}', 'isTaxable', this.checked)">
+                        <span class="slider" style="border-radius: 18px;"></span>
+                    </label>
+                </div>
+                <button class="btn btn-danger" onclick="removeExpense('${exp.id}')" title="Remove Item">&times;</button>
+            `;
+            container.appendChild(row);
+        });
+    }
+
+    function calculate() {
+        // 1. Gather Base Inputs
+        const baseCostInput = document.getElementById('baseCost').value;
+        const marginInput = document.getElementById('margin').value;
+        const taxRateInput = document.getElementById('taxRate').value;
+        const isMasterTaxOn = document.getElementById('masterTaxToggle').checked;
+
+        const baseCost = parseFloat(baseCostInput) || 0;
+        const marginPercent = parseFloat(marginInput) || 0;
+        const taxRate = parseFloat(taxRateInput) || 0;
+
+        // Visual toggle for Master Tax
+        const taxRow = document.getElementById('taxRow');
+        const taxInputBox = document.getElementById('taxRate');
+        if (isMasterTaxOn) {
+            taxInputBox.disabled = false;
+            taxInputBox.style.opacity = '1';
+            taxRow.classList.remove('tax-disabled');
+        } else {
+            taxInputBox.disabled = true;
+            taxInputBox.style.opacity = '0.5';
+            taxRow.classList.add('tax-disabled');
+        }
+
+        // 2. Gather Custom Expenses
+        let totalCustomCost = 0;
+        let taxableCustomCost = 0;
+        let nonTaxableCustomCost = 0;
+
+        customExpenses.forEach(exp => {
+            const amount = parseFloat(exp.amount) || 0;
+            totalCustomCost += amount;
+            if (exp.isTaxable) {
+                taxableCustomCost += amount;
+            } else {
+                nonTaxableCustomCost += amount;
+            }
+        });
+
+        // 3. Calculate True Costs
+        const totalCost = baseCost + totalCustomCost;
+        
+        // If master tax is OFF, taxable costs drop to zero.
+        const totalTaxableCost = isMasterTaxOn ? (baseCost + taxableCustomCost) : 0;
+
+        // 4. Calculate Gross Margin Multiplier (Selling Price = Cost / (1 - (Margin / 100)))
+        const safeMargin = Math.min(marginPercent, 99.99); 
+        const marginMultiplier = safeMargin > 0 ? (1 / (1 - (safeMargin / 100))) : 1;
+
+        // 5. Calculate Selling Prices (Pre-Tax)
+        const preTaxSellingPrice = totalCost * marginMultiplier;
+        const grossProfit = preTaxSellingPrice - totalCost;
+
+        // 6. Calculate Tax (Tax applies to the marked-up taxable portion)
+        const taxableSellingPrice = totalTaxableCost * marginMultiplier;
+        const taxAmount = isMasterTaxOn ? (taxableSellingPrice * (taxRate / 100)) : 0;
+
+        // 7. Calculate Final Selling Price
+        const finalSellingPrice = preTaxSellingPrice + taxAmount;
+
+        // 8. Update UI & State
+        document.getElementById('displayTotalCost').innerText = formatMoney(totalCost);
+        document.getElementById('displayGrossProfit').innerText = formatMoney(grossProfit);
+        document.getElementById('displayTax').innerText = formatMoney(taxAmount);
+        document.getElementById('displaySellingPrice').innerText = formatMoney(finalSellingPrice);
+
+        saveState(baseCostInput, marginInput, taxRateInput, isMasterTaxOn);
+    }
+
+    function formatMoney(amount) {
+        return '$' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // --- Workflow Features ---
+
+    function saveState(baseCost, margin, taxRate, isMasterTaxOn) {
+        const state = {
+            baseCost, margin, taxRate, isMasterTaxOn,
+            customExpenses: customExpenses
+        };
+        localStorage.setItem('simplyDoorsCalcState', JSON.stringify(state));
+    }
+
+    function loadState() {
+        const saved = localStorage.getItem('simplyDoorsCalcState');
+        if (saved) {
+            try {
+                const state = JSON.parse(saved);
+                document.getElementById('baseCost').value = state.baseCost || '';
+                document.getElementById('margin').value = state.margin || '';
+                document.getElementById('taxRate').value = state.taxRate !== undefined ? state.taxRate : '8.25';
+                document.getElementById('masterTaxToggle').checked = state.isMasterTaxOn !== false;
+                customExpenses = state.customExpenses || [];
+                renderCustomExpenses();
+            } catch (e) {
+                console.error("Error loading saved state", e);
+            }
+        }
+    }
+
+    function clearAll() {
+        if(confirm('Are you sure you want to clear all numbers and start over?')) {
+            document.getElementById('baseCost').value = '';
+            document.getElementById('margin').value = '';
+            document.getElementById('taxRate').value = '8.25';
+            document.getElementById('masterTaxToggle').checked = true;
+            customExpenses = [];
+            renderCustomExpenses();
+            calculate();
+        }
+    }
+
+    function copyToClipboard() {
+        const totalCost = document.getElementById('displayTotalCost').innerText;
+        const grossProfit = document.getElementById('displayGrossProfit').innerText;
+        const tax = document.getElementById('displayTax').innerText;
+        const sellingPrice = document.getElementById('displaySellingPrice').innerText;
+        
+        let textToCopy = `Quote Breakdown:\n`;
+        textToCopy += `-----------------\n`;
+        textToCopy += `Total Cost:   ${totalCost}\n`;
+        textToCopy += `Gross Profit: ${grossProfit}\n`;
+        textToCopy += `Sales Tax:    ${tax}\n`;
+        textToCopy += `-----------------\n`;
+        textToCopy += `FINAL PRICE:  ${sellingPrice}\n`;
+
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const btn = document.getElementById('copyBtn');
+            const originalText = btn.innerText;
+            btn.innerText = '✅ Copied to Clipboard!';
+            btn.style.background = 'var(--success)';
+            
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.background = '#334155';
+            }, 2000);
+        });
+    }
+</script>
+
+</body>
+</html>
